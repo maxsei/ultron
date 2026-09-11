@@ -1,0 +1,10 @@
+keys:
+  - &maxsei age1nh2cpqwdlsyn3qktla9lal5fnevq3zlx4lpachjse7y6celxh4cq7vx5jc
+  - &ultron-server age1fk60pxzlfxvzysekuruewkq35kln87zyfjvmc9f23pm8jm6lzpvqr3etjt
+
+creation_rules:
+  - path_regex: ^secrets\.yaml$
+    key_groups:
+      - age:
+          - *maxsei
+          - *ultron-server
