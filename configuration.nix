@@ -6,8 +6,6 @@
 
 {
   imports = [
-    # TODO: generate this
-    # ./hardware-configuration.nix
     (modulesPath + "/profiles/minimal.nix")
   ];
 
@@ -20,21 +18,20 @@
   sops.defaultSopsFile = ./secrets.yaml;
 
   networking.firewall.enable = true;
-  # TODO: figure out ether subnet of local network if/when we plug it into the
-  # local network
-  # networking.interfaces.enp4s0.ipv4.addresses = [
-  #   {
-  #     address = "169.254.55.155";
-  #     prefixLength = 16;
-  #   }
-  # ];
-  networking.interfaces.wlp2s0.ipv4.addresses = [
+  networking.firewall.allowedTCPPorts = [ 9119 ];
+  networking.interfaces.enp0s25.ipv4.addresses = [
     {
-      address = "192.168.0.5";
-      prefixLength = 24;
+      address = "169.254.138.17";
+      prefixLength = 16;
     }
   ];
-  networking.defaultGateway = "192.168.0.1";
+  # networking.interfaces.wlp2s0.ipv4.addresses = [
+  #   {
+  #     address = "192.168.0.5";
+  #     prefixLength = 24;
+  #   }
+  # ];
+  # networking.defaultGateway = "192.168.0.1";
 
   sops.secrets."network-secrets-file" = { };
   networking.wireless.secretsFile = config.sops.secrets."network-secrets-file".path;
