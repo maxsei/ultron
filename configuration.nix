@@ -95,6 +95,10 @@
   services.hermes-agent = {
     enable = true;
     settings.model.default = "anthropic/claude-sonnet-4-6";
+    settings.backend = {
+      host = "0.0.0.0";
+      port = 9119;
+    };
     environmentFiles = [ config.sops.secrets."hermes-env".path ];
   };
 
