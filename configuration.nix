@@ -80,6 +80,13 @@
   };
   users.groups.trevor = {};
 
+  security.sudo.extraRules = [
+    {
+      users = [ "hermes" ];
+      commands = [ { command = "/run/current-system/sw/bin/nixos-rebuild"; options = [ "NOPASSWD" ]; } ];
+    }
+  ];
+
   networking.nameservers = [
     "8.8.8.8"
     "1.1.1.1"
