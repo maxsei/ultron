@@ -92,7 +92,12 @@
   services.hermes-agent = {
     enable = true;
     settings.model.default = "anthropic/claude-sonnet-4-6";
-    settings.backend = {
+    settings.dashboard.basic_auth = {
+      username = "trevor";
+      password_hash = "scrypt$16384$8$1$zcVLU6g3S1i7DUvm4yOaqw==$A7sdbNfAsNleOOZrpPSCe4JKk6J6y9cdJ0Yig50CamI=";
+    };
+    backend = {
+      mode = "dashboard";
       host = "0.0.0.0";
       port = 9119;
     };
