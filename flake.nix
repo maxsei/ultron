@@ -1,23 +1,33 @@
 {
-  description = "NixOS configuration";
+  description = "NixOS configuration — home-server (Ultron)";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     flake-utils.url = "github:numtide/flake-utils";
+
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     hermes-agent.url = "github:NousResearch/hermes-agent";
   };
 
   outputs =
     {
       nixpkgs,
+      home-manager,
       flake-utils,
       sops-nix,
       disko,
@@ -40,16 +50,30 @@
           text = builtins.readFile ./install.sh;
         };
       };
+
       nixosConfigurations = {
         # $ nix run github:nix-community/nixos-anywhere -- --flake .#home-server root@169.254.138.17
         home-server = nixpkgs.lib.nixosSystem {
           inherit system;
           modules = [
+            # Existing modules
             sops-nix.nixosModules.sops
             disko.nixosModules.disko
             hermes-agent.nixosModules.default
             ./disko.nix
             ./configuration.nix
+
+            # Desktop / display stack
+            ./desktop.nix
+
+            # Home-manager as a NixOS module
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs    = true;
+              home-manager.useUserPackages  = true;
+              home-manager.backupFileExtension = "hm-bak";
+              home-manager.users.trevor     = import ./home.nix;
+            }
           ];
         };
       };
