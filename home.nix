@@ -195,7 +195,8 @@ KEYS
 
       # ── Autostart ────────────────────────────────────────────────────────────
       exec-once = [
-        "awww"
+        "awww-daemon"
+        "awww img /home/trevor/Pictures/Wallpapers/waifu.jpg --transition-type wipe"
         "waybar"
         "mako"
         "hypridle"
@@ -501,7 +502,7 @@ KEYS
       color15 = fg;         # bright white
 
       # Window
-      background_opacity  = "0.95";
+      background_opacity  = "0.9";
       window_padding_width = 8;
       confirm_os_window_close = 0;
 
