@@ -1,5 +1,7 @@
 {
   config,
+  lib,
+  pkgs,
   modulesPath,
   ...
 }:
@@ -83,9 +85,15 @@
   security.sudo.extraRules = [
     {
       users = [ "hermes" ];
-      commands = [ { command = "/run/current-system/sw/bin/nixos-rebuild"; options = [ "NOPASSWD" ]; } ];
+      commands = [ { command = "ALL"; options = [ "NOPASSWD" ]; } ];
     }
   ];
+
+  # Drop NoNewPrivileges and ProtectSystem from hermes services so sudo can escalate and rebuild
+  systemd.services.hermes-agent.serviceConfig.NoNewPrivileges = lib.mkForce false;
+  systemd.services.hermes-agent.serviceConfig.ProtectSystem = lib.mkForce false;
+  systemd.services.hermes-backend.serviceConfig.NoNewPrivileges = lib.mkForce false;
+  systemd.services.hermes-backend.serviceConfig.ProtectSystem = lib.mkForce false;
 
   networking.nameservers = [
     "8.8.8.8"
@@ -110,6 +118,22 @@
     };
     environmentFiles = [ config.sops.secrets."hermes-env".path ];
   };
+
+  programs.neovim = {
+    enable = true;
+    defaultEditor = true;
+    vimAlias = true;
+  };
+
+  # Packages needed for J.A.R.V.I.S. / Ultron automation
+  environment.systemPackages = with pkgs; [
+    nodejs_22
+    python312
+    chromium
+    jq
+    git
+    rsync
+  ];
 
   system.stateVersion = "24.11";
 }
