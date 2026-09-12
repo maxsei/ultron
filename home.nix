@@ -87,13 +87,14 @@ in
           enabled  = true;
           size     = 6;
           passes   = 3;
-          new_optimizations = true;
           xray     = false;
         };
-        drop_shadow       = true;
-        shadow_range      = 12;
-        shadow_render_power = 3;
-        "col.shadow"      = "rgba(1a1b26cc)";
+        shadow = {
+          enabled      = true;
+          range        = 12;
+          render_power = 3;
+          color        = "rgba(1a1b26cc)";
+        };
       };
 
       # ── Animations ───────────────────────────────────────────────────────────
@@ -158,13 +159,10 @@ in
       ];
 
       # ── Window rules ─────────────────────────────────────────────────────────
-      windowrulev2 = [
-        "float, class:^(pavucontrol)$"
-        "float, class:^(rofi)$"
-        "float, title:^(Picture-in-Picture)$"
-        "pin,   title:^(Picture-in-Picture)$"
-        "center, class:^(pavucontrol)$"
-        "size 800 500, class:^(pavucontrol)$"
+      windowrule = [
+        "match:class pavucontrol, float on, center on, size 800 500"
+        "match:class rofi, float on"
+        "match:title Picture-in-Picture, float on, pin on"
       ];
 
       # ── Keybindings ──────────────────────────────────────────────────────────
