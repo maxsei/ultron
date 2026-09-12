@@ -107,6 +107,11 @@
   services.hermes-agent = {
     enable = true;
     settings.model.default = "anthropic/claude-sonnet-4-6";
+    settings.mcp_servers.deepwiki = {
+      url = "https://mcp.deepwiki.com/mcp";
+      timeout = 60;
+      connect_timeout = 30;
+    };
     settings.dashboard.basic_auth = {
       username = "trevor";
       password_hash = "scrypt$16384$8$1$zcVLU6g3S1i7DUvm4yOaqw==$A7sdbNfAsNleOOZrpPSCe4JKk6J6y9cdJ0Yig50CamI=";
