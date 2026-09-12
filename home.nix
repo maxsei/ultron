@@ -32,7 +32,7 @@ in
   };
 
   # ── Extra packages ───────────────────────────────────────────────────────────
-  home.packages = with pkgs; [
+  home.packages = (with pkgs; [
     yazi
     btop
     fastfetch
@@ -50,6 +50,51 @@ in
     fzf
     mpv
     imv
+  ]) ++ [
+    (pkgs.writeShellScriptBin "hyprland-help" ''
+      #!/usr/bin/env bash
+      CHEAT=$(cat << 'KEYS'
+ SUPER + Return         Terminal (kitty)
+ SUPER + /              App launcher (rofi)
+ SUPER + ?              This help screen
+ SUPER + Q              Close window
+ SUPER + F              Fullscreen
+ SUPER + Space          Toggle floating
+ SUPER + SHIFT + Q      Lock screen
+ ─────────────────────────────────────────
+ Focus
+ SUPER + H / Left       Focus left
+ SUPER + L / Right      Focus right
+ SUPER + K / Up         Focus up
+ SUPER + J / Down       Focus down
+ ─────────────────────────────────────────
+ Move Windows
+ SUPER + SHIFT + H / Left    Move left
+ SUPER + SHIFT + L / Right   Move right
+ SUPER + SHIFT + K / Up      Move up
+ SUPER + SHIFT + J / Down    Move down
+ ─────────────────────────────────────────
+ Workspaces
+ SUPER + 1-9            Switch workspace
+ SUPER + SHIFT + 1-9    Move window to workspace
+ SUPER + Scroll         Cycle workspaces
+ ─────────────────────────────────────────
+ Utilities
+ SUPER + V              Clipboard history
+ SUPER + P              Screenshot (select area)
+ SUPER + SHIFT + P      Screenshot (full screen)
+ SUPER + mouse drag     Move window
+ SUPER + right-drag     Resize window
+KEYS
+      )
+      echo "$CHEAT" | rofi \
+        -dmenu \
+        -i \
+        -p " Keybinds" \
+        -no-custom \
+        -theme-str 'window { width: 620px; } listview { lines: 20; columns: 1; } entry { placeholder: "Filter..."; }' \
+        > /dev/null 2>&1
+    '')
   ];
 
   # ── XDG user dirs ────────────────────────────────────────────────────────────
@@ -130,6 +175,7 @@ in
       # ── Input ────────────────────────────────────────────────────────────────
       input = {
         kb_layout       = "us";
+        kb_options      = "caps:escape";
         follow_mouse    = 1;
         sensitivity     = 0;
         touchpad.natural_scroll = true;
@@ -170,7 +216,7 @@ in
       bind = [
         # Core
         "$mod, Return, exec, kitty"
-        "$mod, D,      exec, rofi -show drun"
+        "$mod, slash,  exec, rofi -show drun"
         "$mod, Q,      killactive"
         "$mod, F,      fullscreen"
         "$mod, Space,  togglefloating"
@@ -179,17 +225,28 @@ in
         "$mod, P,      exec, grim -g \"$(slurp)\" - | wl-copy"
         "$mod SHIFT, P, exec, grim ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png"
 
-        # Focus
-        "$mod, H, movefocus, l"
-        "$mod, L, movefocus, r"
-        "$mod, K, movefocus, u"
-        "$mod, J, movefocus, d"
+        # Help cheatsheet
+        "$mod SHIFT, slash, exec, hyprland-help"
 
-        # Move windows
-        "$mod SHIFT, H, movewindow, l"
-        "$mod SHIFT, L, movewindow, r"
-        "$mod SHIFT, K, movewindow, u"
-        "$mod SHIFT, J, movewindow, d"
+        # Focus (vim + arrows)
+        "$mod, H,     movefocus, l"
+        "$mod, L,     movefocus, r"
+        "$mod, K,     movefocus, u"
+        "$mod, J,     movefocus, d"
+        "$mod, left,  movefocus, l"
+        "$mod, right, movefocus, r"
+        "$mod, up,    movefocus, u"
+        "$mod, down,  movefocus, d"
+
+        # Move windows (vim + arrows)
+        "$mod SHIFT, H,     movewindow, l"
+        "$mod SHIFT, L,     movewindow, r"
+        "$mod SHIFT, K,     movewindow, u"
+        "$mod SHIFT, J,     movewindow, d"
+        "$mod SHIFT, left,  movewindow, l"
+        "$mod SHIFT, right, movewindow, r"
+        "$mod SHIFT, up,    movewindow, u"
+        "$mod SHIFT, down,  movewindow, d"
 
         # Workspaces 1-9
         "$mod, 1, workspace, 1"
