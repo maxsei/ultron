@@ -6,6 +6,14 @@
   ...
 }:
 
+let
+  # Desktop users share IDENTICAL config (groups, shell env, home-manager
+  # profile via home.nix) — the only thing that differs between them is
+  # their login (username + password hash). The account list lives in
+  # desktop-users.nix (shared with flake.nix's home-manager.users), so
+  # adding a person means editing exactly one file.
+  desktopUsers = import ./desktop-users.nix;
+in
 {
   imports = [
     (modulesPath + "/profiles/minimal.nix")
@@ -81,27 +89,25 @@
   services.openssh.settings.PermitRootLogin = "yes";
   users.mutableUsers = false;
 
-  users.users.root = {
-    hashedPassword = "$y$j9T$REASQPG5VV9g6EC1fuQ4N/$N5zwQZ8UngbIb4OCAwjrtTxHFpGHZ7KBPCSuuA9keu2";
-    openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA4cZZny+4K2XmleF+r/fGh14jqnw0XHrF4a0RxFKFVc mschulte@thinkpad-t440p"
-    ];
-  };
-  users.users.trevor = {
+  # Desktop users share IDENTICAL config (groups, shell env, home-manager
+  # profile via home.nix) — the only thing that differs between them is
+  # their login (username + password hash). Add a new desktop user by
+  # adding one line to `desktop-users.nix`, nothing else.
+  users.users = lib.mapAttrs (name: hashedPassword: {
     isNormalUser = true;
-    group = "trevor";
-    extraGroups = [ "wheel" "hermes" ];
-    hashedPassword = "$y$j9T$Oqvof0C5NrIklpAlMFxPZ0$1tVi7Zaluc8mIbF/z7mPPKQbKR/hFYu/igMJkhOikWC";
+    group = name;
+    extraGroups = [ "wheel" "hermes" "video" "audio" "networkmanager" ];
+    inherit hashedPassword;
+  }) desktopUsers // {
+    root = {
+      hashedPassword = "$y$j9T$REASQPG5VV9g6EC1fuQ4N/$N5zwQZ8UngbIb4OCAwjrtTxHFpGHZ7KBPCSuuA9keu2";
+      openssh.authorizedKeys.keys = [
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA4cZZny+4K2XmleF+r/fGh14jqnw0XHrF4a0RxFKFVc mschulte@thinkpad-t440p"
+      ];
+    };
   };
-  users.groups.trevor = {};
 
-  users.users.mschulte = {
-    isNormalUser = true;
-    group = "mschulte";
-    extraGroups = [ "wheel" "hermes" ];
-    hashedPassword = "$y$j9T$TJhoLFgPmf0idxUD.g0Ep/$y5XO4eMOu8A0ZWtGhEvpsgcgFX4SZTsPOQ8bE/UB6TB";
-  };
-  users.groups.mschulte = {};
+  users.groups = lib.mapAttrs (name: _: { }) desktopUsers;
 
   security.sudo.extraRules = [
     {

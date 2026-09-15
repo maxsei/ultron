@@ -72,12 +72,16 @@
               home-manager.useGlobalPkgs    = true;
               home-manager.useUserPackages  = true;
               home-manager.backupFileExtension = "hm-bak";
-              home-manager.users.trevor = {
+              # Every desktop user (trevor, mschulte, ...) gets the exact same
+              # home-manager profile from home.nix. The account list is the
+              # shared desktop-users.nix (also used by configuration.nix), so
+              # adding a person to one file adds them everywhere.
+              home-manager.users = nixpkgs.lib.genAttrs (builtins.attrNames (import ./desktop-users.nix)) (name: {
                 imports = [
                   hermes-agent.homeManagerModules.default
                   (import ./home.nix)
                 ];
-              };
+              });
             }
           ];
         };

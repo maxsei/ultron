@@ -115,8 +115,6 @@
     XDG_SESSION_DESKTOP                = "Hyprland";
   };
 
-  # Trevor needs to be in the video/audio groups for brightness + audio control
-  users.users.trevor = {
-    extraGroups = [ "video" "audio" "networkmanager" ];
-  };
+  # Desktop users' video/audio/networkmanager groups are defined once,
+  # alongside wheel/hermes, in configuration.nix's shared `desktopUsers` set.
 }

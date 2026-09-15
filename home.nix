@@ -18,6 +18,12 @@ let
   activetab = "#1f2335";
   sidebar   = "#1f2335";
   black     = "#15161e";
+
+  # ── Wallpaper (fetched from wallhaven, pinned by hash) ─────────────────────
+  wallpaper = pkgs.fetchurl {
+    url = "https://w.wallhaven.cc/full/2y/wallhaven-2yg77x.jpg";
+    sha256 = "1fxp5kzl2yrdm3nb5syr9cb7fvyn165yh1w3gng8rn500mps99vj";
+  };
 in
 {
   # ── Hermes Agent Desktop (connects to system backend) ──────────────────────────
@@ -43,8 +49,10 @@ in
     Install = { WantedBy = [ "graphical-session.target" ]; };
   };
 
-  home.username      = "trevor";
-  home.homeDirectory = "/home/trevor";
+  # home.username / home.homeDirectory are inferred automatically by the
+  # home-manager NixOS module from the matching users.users.<name> entry —
+  # left unset here so this module can be shared across multiple users
+  # (trevor, mschulte) without hardcoding one person's home dir.
   home.stateVersion  = "24.11";
 
   # ── Session variables ────────────────────────────────────────────────────────
@@ -219,7 +227,7 @@ KEYS
       # ── Autostart ────────────────────────────────────────────────────────────
       exec-once = [
         "awww-daemon"
-        "awww img /home/trevor/Pictures/Wallpapers/waifu.jpg --transition-type wipe"
+        "awww img ${wallpaper} --transition-type wipe"
         "waybar"
         "mako"
         "hypridle"
@@ -759,7 +767,7 @@ KEYS
         {
           # Greeting
           monitor    = "";
-          text       = "Hey Trevor 👋";
+          text       = "cmd[update:3600000] echo \"Hey $USER 👋\"";
           color      = "rgba(122,162,247,0.8)";
           font_size  = 14;
           font_family = "JetBrainsMono Nerd Font Mono";
