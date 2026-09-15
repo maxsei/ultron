@@ -18,6 +18,12 @@ let
   activetab = "#1f2335";
   sidebar   = "#1f2335";
   black     = "#15161e";
+
+  # ── Wallpaper ────────────────────────────────────────────────────────────────
+  wallpaper = pkgs.fetchurl {
+    url    = "https://wallpaperaccess.com/full/1751810.jpg";
+    sha256 = "0s693jk38rbx91n1hy5scskck0yd0ghd4prpd6cahfdblp0fmzyd";
+  };
 in
 {
   home.username      = "trevor";
@@ -33,6 +39,7 @@ in
 
   # ── Extra packages ───────────────────────────────────────────────────────────
   home.packages = with pkgs; [
+    swww
     yazi
     btop
     fastfetch
@@ -148,7 +155,7 @@ in
 
       # ── Autostart ────────────────────────────────────────────────────────────
       exec-once = [
-        "awww"
+        "swww-daemon && swww img ${wallpaper}"
         "waybar"
         "mako"
         "hypridle"
@@ -621,7 +628,7 @@ in
 
       background = [{
         monitor    = "";
-        path       = "screenshot";
+        path       = "${wallpaper}";
         blur_size  = 7;
         blur_passes = 3;
         brightness = 0.7;
