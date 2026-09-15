@@ -16,6 +16,8 @@
 
   time.timeZone = "America/Chicago";
 
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
   sops.defaultSopsFile = ./secrets.yaml;
 
@@ -106,7 +108,17 @@
 
   services.hermes-agent = {
     enable = true;
-    settings.model.default = "anthropic/claude-sonnet-4-6";
+    settings.model.default = "google/gemini-2.5-flash-lite";
+    settings.model.aliases = {
+      cheap = "google/gemini-2.5-flash-lite";
+      cron = "google/gemini-2.5-flash-lite";
+    };
+    settings.providers = [{
+      name = "nous-portal";
+      base_url = "https://openrouter.ai/api/v1";
+      api_key_env = "NOUS_API_KEY";
+    }];
+    settings.browser.cdp_url = "ws://localhost:18800";
     settings.mcp_servers.deepwiki = {
       url = "https://mcp.deepwiki.com/mcp";
       timeout = 60;
@@ -138,7 +150,13 @@
     jq
     git
     rsync
+    patchelf
+    sops
   ];
+
+  # Headless Chromium for browser automation (J.A.R.V.I.S.)
+  # Chromium CDP runs as trevor's user service so it has Wayland socket access
+  # It is started by home-manager via systemd user service (see home.nix)
 
   system.stateVersion = "24.11";
 }

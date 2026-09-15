@@ -20,6 +20,23 @@ let
   black     = "#15161e";
 in
 {
+  # ── Chromium CDP user service (for Hermes browser automation) ──────────────
+  systemd.user.services.chromium-cdp = {
+    Unit = {
+      Description = "Chromium CDP for Hermes browser automation";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      ExecStart = "${pkgs.chromium}/bin/chromium --no-sandbox --disable-gpu "
+        + "--remote-debugging-port=18800 --remote-debugging-address=127.0.0.1 "
+        + "--disable-dev-shm-usage --disable-setuid-sandbox --ozone-platform=wayland";
+      Restart = "on-failure";
+      RestartSec = "5s";
+    };
+    Install = { WantedBy = [ "graphical-session.target" ]; };
+  };
+
   home.username      = "trevor";
   home.homeDirectory = "/home/trevor";
   home.stateVersion  = "24.11";
@@ -203,6 +220,7 @@ KEYS
         "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1"
         "wl-paste --type text --watch cliphist store"
         "wl-paste --type image --watch cliphist store"
+        "chromium --no-sandbox --disable-gpu --remote-debugging-port=18800 --remote-debugging-address=127.0.0.1 --disable-dev-shm-usage"
       ];
 
       # ── Window rules ─────────────────────────────────────────────────────────
@@ -771,11 +789,7 @@ KEYS
           timeout  = 600;
           on-timeout = "loginctl lock-session";
         }
-        {
-          # 20 min: suspend
-          timeout  = 1200;
-          on-timeout = "systemctl suspend";
-        }
+        # suspend disabled — machine must stay awake for J.A.R.V.I.S. crons
       ];
     };
   };
