@@ -90,9 +90,18 @@
   users.users.trevor = {
     isNormalUser = true;
     group = "trevor";
+    extraGroups = [ "wheel" ];
     hashedPassword = "$y$j9T$Oqvof0C5NrIklpAlMFxPZ0$1tVi7Zaluc8mIbF/z7mPPKQbKR/hFYu/igMJkhOikWC";
   };
   users.groups.trevor = {};
+
+  users.users.mschulte = {
+    isNormalUser = true;
+    group = "mschulte";
+    extraGroups = [ "wheel" ];
+    hashedPassword = "$y$j9T$TJhoLFgPmf0idxUD.g0Ep/$y5XO4eMOu8A0ZWtGhEvpsgcgFX4SZTsPOQ8bE/UB6TB";
+  };
+  users.groups.mschulte = {};
 
   security.sudo.extraRules = [
     {
@@ -116,12 +125,16 @@
     owner = "hermes";
   };
 
-  services.hermes-agent = {
+  services.hermes-agent =
+  let
+    gemini-38 = "google/gemini-3.8-flash";
+  in
+  {
     enable = true;
-    settings.model.default = "google/gemini-2.5-flash-lite";
+    settings.model.default = gemini-38;
     settings.model.aliases = {
-      cheap = "google/gemini-2.5-flash-lite";
-      cron = "google/gemini-2.5-flash-lite";
+      cheap = gemini-38;
+      cron = gemini-38;
     };
     settings.providers = [{
       name = "nous-portal";
