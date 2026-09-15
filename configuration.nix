@@ -93,17 +93,18 @@ in
   # profile via home.nix) — the only thing that differs between them is
   # their login (username + password hash). Add a new desktop user by
   # adding one line to `desktop-users.nix`, nothing else.
-  users.users = lib.mapAttrs (name: hashedPassword: {
+  users.users = let
+    mschulte-thinkpad-t440p = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA4cZZny+4K2XmleF+r/fGh14jqnw0XHrF4a0RxFKFVc mschulte@thinkpad-t440p";
+  in lib.mapAttrs (name: hashedPassword: {
     isNormalUser = true;
     group = name;
     extraGroups = [ "wheel" "hermes" "video" "audio" "networkmanager" ];
     inherit hashedPassword;
+    openssh.authorizedKeys.keys = [ mschulte-thinkpad-t440p ];
   }) desktopUsers // {
     root = {
-      hashedPassword = "$y$j9T$REASQPG5VV9g6EC1fuQ4N/$N5zwQZ8UngbIb4OCAwjrtTxHFpGHZ7KBPCSuuA9keu2";
-      openssh.authorizedKeys.keys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA4cZZny+4K2XmleF+r/fGh14jqnw0XHrF4a0RxFKFVc mschulte@thinkpad-t440p"
-      ];
+      hashedPassword = "$y$j9T$JdTFY9EQX6ffzG3NHhgrD1$dbVXKdqud29gdKCbqJanRk/jppVO2qX.6mGhI2yBvw6";
+      openssh.authorizedKeys.keys = [ mschulte-thinkpad-t440p ];
     };
   };
 
