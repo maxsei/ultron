@@ -20,6 +20,12 @@ let
   black     = "#15161e";
 in
 {
+  # ── Hermes Agent Desktop (connects to system backend) ──────────────────────────
+  programs.hermes-agent = {
+    enable = true;
+    desktop.enable = true;
+  };
+
   # ── Chromium CDP user service (for Hermes browser automation) ──────────────
   systemd.user.services.chromium-cdp = {
     Unit = {

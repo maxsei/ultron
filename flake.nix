@@ -72,7 +72,12 @@
               home-manager.useGlobalPkgs    = true;
               home-manager.useUserPackages  = true;
               home-manager.backupFileExtension = "hm-bak";
-              home-manager.users.trevor     = import ./home.nix;
+              home-manager.users.trevor = {
+                imports = [
+                  hermes-agent.homeManagerModules.default
+                  (import ./home.nix)
+                ];
+              };
             }
           ];
         };

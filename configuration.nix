@@ -124,6 +124,11 @@
   sops.secrets."hermes-env" = {
     owner = "hermes";
   };
+  sops.secrets."hermes-session-token" = {
+    owner = "hermes";
+    group = "hermes";
+    mode = "0440";
+  };
 
   services.hermes-agent =
   let
@@ -159,6 +164,7 @@
       mode = "dashboard";
       host = "0.0.0.0";
       port = 9119;
+      sessionTokenFile = config.sops.secrets."hermes-session-token".path;
     };
     environmentFiles = [ config.sops.secrets."hermes-env".path ];
   };
