@@ -131,7 +131,11 @@
   in
   {
     enable = true;
-    settings.model.default = gemini-38;
+    addToSystemPackages = true;
+    settings.model = {
+      default = gemini-38;
+      provider = "nous";
+    };
     settings.model.aliases = {
       cheap = gemini-38;
       cron = gemini-38;
