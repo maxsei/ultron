@@ -90,7 +90,7 @@
   users.users.trevor = {
     isNormalUser = true;
     group = "trevor";
-    extraGroups = [ "wheel" ];
+    extraGroups = [ "wheel" "hermes" ];
     hashedPassword = "$y$j9T$Oqvof0C5NrIklpAlMFxPZ0$1tVi7Zaluc8mIbF/z7mPPKQbKR/hFYu/igMJkhOikWC";
   };
   users.groups.trevor = {};
@@ -98,7 +98,7 @@
   users.users.mschulte = {
     isNormalUser = true;
     group = "mschulte";
-    extraGroups = [ "wheel" ];
+    extraGroups = [ "wheel" "hermes" ];
     hashedPassword = "$y$j9T$TJhoLFgPmf0idxUD.g0Ep/$y5XO4eMOu8A0ZWtGhEvpsgcgFX4SZTsPOQ8bE/UB6TB";
   };
   users.groups.mschulte = {};
