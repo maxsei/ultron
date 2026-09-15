@@ -21,6 +21,16 @@
   sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
   sops.defaultSopsFile = ./secrets.yaml;
 
+  # Populate root's default sops age identity from the host SSH key so
+  # `sops secrets.yaml` works imperatively as root with no extra flags/env vars.
+  # Self-heals on every activation/rebuild.
+  system.activationScripts.rootSopsAgeKey = ''
+    mkdir -p /root/.config/sops/age
+    ${pkgs.ssh-to-age}/bin/ssh-to-age -private-key -i /etc/ssh/ssh_host_ed25519_key > /root/.config/sops/age/keys.txt
+    chmod 700 /root/.config/sops/age
+    chmod 600 /root/.config/sops/age/keys.txt
+  '';
+
   networking.firewall.enable = true;
   networking.firewall.allowedTCPPorts = [ 9119 ];
   networking.interfaces.enp0s25.ipv4.addresses = [
@@ -152,6 +162,7 @@
     rsync
     patchelf
     sops
+    ssh-to-age
   ];
 
   # Headless Chromium for browser automation (J.A.R.V.I.S.)
