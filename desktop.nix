@@ -18,7 +18,8 @@
           ${pkgs.tuigreet}/bin/tuigreet \
             --time \
             --time-format "%a %b %d  %H:%M" \
-            --greeting "Welcome back, Trevor" \
+            --greeting "Welcome to Ultron" \
+            --user-menu \
             --cmd Hyprland
         '';
         user = "greeter";
