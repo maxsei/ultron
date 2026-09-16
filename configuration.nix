@@ -40,7 +40,7 @@ in
   '';
 
   networking.firewall.enable = true;
-  networking.firewall.allowedTCPPorts = [ 9119 ];
+  networking.firewall.allowedTCPPorts = [ ];
   networking.interfaces.enp0s25.ipv4.addresses = [
     {
       address = "169.254.138.17";
@@ -163,13 +163,9 @@ in
       timeout = 60;
       connect_timeout = 30;
     };
-    settings.dashboard.basic_auth = {
-      username = "trevor";
-      password_hash = "scrypt$16384$8$1$zcVLU6g3S1i7DUvm4yOaqw==$A7sdbNfAsNleOOZrpPSCe4JKk6J6y9cdJ0Yig50CamI=";
-    };
     backend = {
       mode = "dashboard";
-      host = "0.0.0.0";
+      host = "127.0.0.1";
       port = 9119;
       sessionTokenFile = config.sops.secrets."hermes-session-token".path;
     };
