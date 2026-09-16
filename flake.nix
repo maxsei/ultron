@@ -55,6 +55,7 @@
         # $ nix run github:nix-community/nixos-anywhere -- --flake .#home-server root@169.254.138.17
         home-server = nixpkgs.lib.nixosSystem {
           inherit system;
+          specialArgs = { inputs = { inherit hermes-agent; }; };
           modules = [
             # Existing modules
             sops-nix.nixosModules.sops
@@ -65,6 +66,7 @@
 
             # Desktop / display stack
             ./desktop.nix
+            ./hermes-desktop.nix
 
             # Home-manager as a NixOS module
             home-manager.nixosModules.home-manager
@@ -78,7 +80,6 @@
               # adding a person to one file adds them everywhere.
               home-manager.users = nixpkgs.lib.genAttrs (builtins.attrNames (import ./desktop-users.nix)) (name: {
                 imports = [
-                  hermes-agent.homeManagerModules.default
                   (import ./home.nix)
                 ];
               });
