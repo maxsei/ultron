@@ -234,7 +234,8 @@ KEYS
         "$mod, Q,      killactive"
         "$mod, F,      fullscreen"
         "$mod, Space,  togglefloating"
-        "$mod SHIFT, Q, exec, hyprlock"
+        "$mod SHIFT, Q, exit"
+        "$mod, L,      exec, hyprlock"
         "$mod, V,      exec, cliphist list | rofi -dmenu | cliphist decode | wl-copy"
         "$mod, P,      exec, grim -g \"$(slurp)\" - | wl-copy"
         "$mod SHIFT, P, exec, grim ~/Pictures/Screenshots/$(date +%Y%m%d-%H%M%S).png"
@@ -757,6 +758,7 @@ KEYS
           valign     = "center";
         }
       ];
+
     };
   };
 
