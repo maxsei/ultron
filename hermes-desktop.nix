@@ -6,7 +6,7 @@
 { config, pkgs, inputs, ... }:
 {
   environment.systemPackages = [
-    (inputs.hermes-agent.packages.${pkgs.system}.hermesDesktop.override {
+    (inputs.hermes-agent.packages.${pkgs.system}.desktop.override {
       extraEnv = {
         HERMES_DESKTOP_REMOTE_URL = "http://127.0.0.1:9119";
       };
