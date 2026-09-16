@@ -65,20 +65,7 @@ in
   # ── Extra packages ───────────────────────────────────────────────────────────
   home.packages = (with pkgs; [
     yazi
-    btop
     fastfetch
-    file
-    unzip
-    zip
-    wget
-    curl
-    jq
-    ripgrep
-    fd
-    tree
-    bat
-    eza
-    fzf
     mpv
     imv
   ]) ++ [

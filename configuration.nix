@@ -182,7 +182,7 @@ in
     vimAlias = true;
   };
 
-  # Packages needed for J.A.R.V.I.S. / Ultron automation
+  # Packages needed for J.A.R.V.I.S. / Ultron automation & system utilities
   environment.systemPackages = with pkgs; [
     nodejs_22
     python312
@@ -193,6 +193,20 @@ in
     patchelf
     sops
     ssh-to-age
+    # Core CLI utilities & file managers
+    ripgrep
+    fd
+    bat
+    eza
+    fzf
+    btop
+    curl
+    wget
+    file
+    unzip
+    zip
+    tree
+    lf
   ];
 
   # Headless Chromium for browser automation (J.A.R.V.I.S.)
