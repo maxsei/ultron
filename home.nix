@@ -58,6 +58,7 @@ in
 
   # ── Extra packages ───────────────────────────────────────────────────────────
   home.packages = (with pkgs; [
+    (pkgs.callPackage ./pkgs/signal-desktop { })
     yazi
     fastfetch
     mpv

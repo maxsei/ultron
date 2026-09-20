@@ -17,7 +17,10 @@ in
 {
   imports = [
     (modulesPath + "/profiles/minimal.nix")
+    ./tailscale.nix
   ];
+
+  networking.hostName = "ultron";
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -40,7 +43,7 @@ in
   '';
 
   networking.firewall.enable = true;
-  networking.firewall.allowedTCPPorts = [ ];
+  networking.firewall.allowedTCPPorts = [ 443 ];
   networking.interfaces.enp0s25.ipv4.addresses = [
     {
       address = "169.254.138.17";
@@ -55,32 +58,8 @@ in
   # ];
   # networking.defaultGateway = "192.168.0.1";
 
-  sops.secrets."network-secrets-file" = { };
-  networking.wireless.secretsFile = config.sops.secrets."network-secrets-file".path;
   networking.wireless.enable = true;
   networking.networkmanager.enable = false;
-
-  networking.wireless.networks = {
-    "Football@BYU" = {
-      pskRaw = "ext:Football@BYU";
-    };
-  };
-
-  # Dynamic DNS.
-  sops.secrets."freedns-password" = {
-    owner = config.systemd.services.inadyn.serviceConfig.User;
-  };
-  services.inadyn = {
-    enable = true;
-    settings = {
-      provider."freedns.afraid.org" = {
-        username = "maxsei";
-        # TODO(maxsei): set this up
-        hostname = "ultron.chickenkiller.com";
-        include = config.sops.secrets."freedns-password".path;
-      };
-    };
-  };
 
   services.openssh.enable = true;
   services.openssh.openFirewall = true;
@@ -138,19 +117,16 @@ in
   };
 
   services.hermes-agent =
-  let
-    gemini-38 = "google/gemini-3.8-flash";
-  in
   {
     enable = true;
     addToSystemPackages = true;
     settings.model = {
-      default = gemini-38;
+      default = "anthropic/claude-sonnet-4.5";
       provider = "nous";
     };
     settings.model.aliases = {
-      cheap = gemini-38;
-      cron = gemini-38;
+      cheap = "anthropic/claude-sonnet-4.5";
+      cron = "anthropic/claude-sonnet-4.5";
     };
     settings.providers = [{
       name = "nous-portal";
@@ -172,6 +148,48 @@ in
     environmentFiles = [ config.sops.secrets."hermes-env".path ];
   };
 
+  # Tailscale HTTPS cert for ultron.tailc49418.ts.net
+  # tailscale cert provisions a real LE cert via Tailscale's ACME infrastructure,
+  # which works for .ts.net hostnames that aren't publicly resolvable.
+  services.tailscale.permitCertUid = "nginx";
+  services.nginx = {
+    enable = true;
+    virtualHosts."ultron.tailc49418.ts.net" = {
+      forceSSL = true;
+      sslCertificate = "/var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt";
+      sslCertificateKey = "/var/lib/tailscale/certs/ultron.tailc49418.ts.net.key";
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:9119";
+        proxyWebsockets = true;
+        extraConfig = ''
+          proxy_read_timeout 600s;
+          proxy_send_timeout 600s;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+        '';
+      };
+    };
+  };
+
+  # Provision and renew the Tailscale cert on activation
+  system.activationScripts.tailscaleCert = {
+    deps = [ "specialfs" "users" "groups" ];
+    text = ''
+      mkdir -p /var/lib/tailscale/certs
+      chmod o+x /var/lib/tailscale
+      ${pkgs.tailscale}/bin/tailscale cert \
+        --cert-file /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt \
+        --key-file  /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key \
+        ultron.tailc49418.ts.net || true
+      chown root:nginx /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt \
+                       /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key
+      chmod 640 /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt \
+                /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key
+    '';
+  };
+
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -180,6 +198,7 @@ in
 
   # Packages needed for J.A.R.V.I.S. / Ultron automation & system utilities
   environment.systemPackages = with pkgs; [
+    (pkgs.callPackage ./pkgs/signal-desktop { })
     nodejs_22
     python312
     chromium
