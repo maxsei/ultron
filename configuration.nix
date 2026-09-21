@@ -151,27 +151,32 @@ in
   # Tailscale HTTPS cert for ultron.tailc49418.ts.net
   # tailscale cert provisions a real LE cert via Tailscale's ACME infrastructure,
   # which works for .ts.net hostnames that aren't publicly resolvable.
-  services.tailscale.permitCertUid = "nginx";
-  services.nginx = {
+  services.tailscale.permitCertUid = "caddy";
+  services.caddy = {
     enable = true;
     virtualHosts."ultron.tailc49418.ts.net" = {
-      forceSSL = true;
-      sslCertificate = "/var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt";
-      sslCertificateKey = "/var/lib/tailscale/certs/ultron.tailc49418.ts.net.key";
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:9119";
-        proxyWebsockets = true;
-        extraConfig = ''
-          proxy_read_timeout 600s;
-          proxy_send_timeout 600s;
-          proxy_set_header Host $host;
-          proxy_set_header X-Real-IP $remote_addr;
-          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-          proxy_set_header X-Forwarded-Proto $scheme;
-        '';
-      };
+      extraConfig = ''
+        tls /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key
+        reverse_proxy http://127.0.0.1:9119 {
+          header_up Host {upstream_hostport}
+          header_up X-Forwarded-Host {host}
+          header_up X-Hermes-Session-Token {env.HERMES_SESSION_TOKEN}
+        }
+      '';
     };
   };
+
+  # Feed the session token into Caddy as an env var so the Caddyfile can
+  # reference it via {env.HERMES_SESSION_TOKEN} without embedding secrets.
+  systemd.services.caddy.serviceConfig.EnvironmentFile = config.sops.secrets."hermes-session-token".path;
+
+  # Ensure Tailscale cert files are readable by caddy before it starts.
+  systemd.services.caddy.serviceConfig.ExecStartPre = [
+    "+${pkgs.coreutils}/bin/chown root:caddy /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key"
+    "+${pkgs.coreutils}/bin/chmod 640 /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key"
+  ];
+
+  sops.secrets."hermes-session-token".neededForUsers = false;
 
   # Provision and renew the Tailscale cert on activation
   system.activationScripts.tailscaleCert = {
@@ -183,7 +188,7 @@ in
         --cert-file /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt \
         --key-file  /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key \
         ultron.tailc49418.ts.net || true
-      chown root:nginx /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt \
+      chown root:caddy /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt \
                        /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key
       chmod 640 /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt \
                 /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key
