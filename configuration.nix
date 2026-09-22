@@ -154,21 +154,34 @@ in
   services.tailscale.permitCertUid = "caddy";
   services.caddy = {
     enable = true;
+    globalConfig = ''
+      servers {
+        protocols h1 h2c
+      }
+    '';
     virtualHosts."ultron.tailc49418.ts.net" = {
       extraConfig = ''
         tls /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key
         reverse_proxy http://127.0.0.1:9119 {
-          header_up Host {upstream_hostport}
-          header_up X-Forwarded-Host {host}
-          header_up X-Hermes-Session-Token {env.HERMES_SESSION_TOKEN}
+          header_up Host 127.0.0.1:9119
+          header_up Origin http://127.0.0.1:9119
+          transport http {
+            versions 1.1
+          }
         }
       '';
     };
   };
 
-  # Feed the session token into Caddy as an env var so the Caddyfile can
-  # reference it via {env.HERMES_SESSION_TOKEN} without embedding secrets.
-  systemd.services.caddy.serviceConfig.EnvironmentFile = config.sops.secrets."hermes-session-token".path;
+  # Feed the session token into Caddy as a KEY=VALUE env file so the Caddyfile
+  # can reference it via {env.HERMES_SESSION_TOKEN}. systemd EnvironmentFile
+  # requires KEY=VALUE format; the raw secret needs to be wrapped via a template.
+  sops.templates."caddy-env" = {
+    content = "HERMES_SESSION_TOKEN=${config.sops.placeholder."hermes-session-token"}";
+    owner = "caddy";
+    mode = "0400";
+  };
+  systemd.services.caddy.serviceConfig.EnvironmentFile = config.sops.templates."caddy-env".path;
 
   # Ensure Tailscale cert files are readable by caddy before it starts.
   systemd.services.caddy.serviceConfig.ExecStartPre = [
