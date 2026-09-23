@@ -121,12 +121,12 @@ in
     enable = true;
     addToSystemPackages = true;
     settings.model = {
-      default = "anthropic/claude-sonnet-4.5";
+      default = "deepseek/deepseek-v4-pro";
       provider = "nous";
     };
     settings.model.aliases = {
-      cheap = "anthropic/claude-sonnet-4.5";
-      cron = "anthropic/claude-sonnet-4.5";
+      cheap = "deepseek/deepseek-v4.1-flash";
+      cron = "deepseek/deepseek-v4-pro";
     };
     settings.providers = [{
       name = "nous-portal";
