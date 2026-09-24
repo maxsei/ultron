@@ -8,7 +8,7 @@
   environment.systemPackages = [
     (inputs.hermes-agent.packages.${pkgs.system}.desktop.override {
       extraEnv = {
-        HERMES_DESKTOP_REMOTE_URL = "http://127.0.0.1:9119";
+        HERMES_DESKTOP_REMOTE_URL = "http://127.0.0.1:9120";
       };
       extraRun = [
         ''
