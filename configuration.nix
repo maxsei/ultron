@@ -120,6 +120,11 @@ in
   {
     enable = true;
     addToSystemPackages = true;
+    settings.gateway.api_server = {
+      enabled = true;
+      host = "0.0.0.0";
+      port = 8642;
+    };
     settings.model = {
       default = "deepseek/deepseek-v4-pro";
       provider = "nous";
@@ -159,17 +164,27 @@ in
         protocols h1 h2c
       }
     '';
-    virtualHosts."ultron.tailc49418.ts.net" = {
-      extraConfig = ''
-        tls /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key
-        reverse_proxy http://127.0.0.1:9119 {
-          header_up Host 127.0.0.1:9119
-          header_up Origin http://127.0.0.1:9119
-          transport http {
-            versions 1.1
+    virtualHosts = {
+      "ultron.tailc49418.ts.net" = {
+        extraConfig = ''
+          tls /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key
+          reverse_proxy http://127.0.0.1:9119 {
+            header_up Host 127.0.0.1:9119
+            header_up Origin http://127.0.0.1:9119
+            transport http {
+              versions 1.1
+            }
           }
-        }
-      '';
+        '';
+      };
+      # "ultron.tailc49418.ts.net:8642".extraConfig = ''
+      #   tls /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key
+      #   reverse_proxy http://127.0.0.1:8642 {
+      #     transport http {
+      #       versions 1.1
+      #     }
+      #   }
+      # '';
     };
   };
 
