@@ -147,7 +147,7 @@ in
     backend = {
       mode = "dashboard";
       host = "127.0.0.1";
-      port = 9119;
+      port = 9120;
       sessionTokenFile = config.sops.secrets."hermes-session-token".path;
     };
     environmentFiles = [ config.sops.secrets."hermes-env".path ];
@@ -157,7 +157,18 @@ in
   # tailscale cert provisions a real LE cert via Tailscale's ACME infrastructure,
   # which works for .ts.net hostnames that aren't publicly resolvable.
   services.tailscale.permitCertUid = "caddy";
-  services.caddy = {
+  services.caddy = let
+    proxy = ''
+      reverse_proxy http://127.0.0.1:9120 {
+        header_up Host 127.0.0.1:9120
+        header_up Origin http://127.0.0.1:9120
+        header_up X-Hermes-Session-Token {env.HERMES_SESSION_TOKEN}
+        transport http {
+          versions 1.1
+        }
+      }
+    '';
+  in {
     enable = true;
     globalConfig = ''
       servers {
@@ -165,26 +176,18 @@ in
       }
     '';
     virtualHosts = {
-      "ultron.tailc49418.ts.net" = {
+      "https://ultron.tailc49418.ts.net" = {
         extraConfig = ''
           tls /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key
-          reverse_proxy http://127.0.0.1:9119 {
-            header_up Host 127.0.0.1:9119
-            header_up Origin http://127.0.0.1:9119
-            transport http {
-              versions 1.1
-            }
-          }
+          ${proxy}
         '';
       };
-      # "ultron.tailc49418.ts.net:8642".extraConfig = ''
-      #   tls /var/lib/tailscale/certs/ultron.tailc49418.ts.net.crt /var/lib/tailscale/certs/ultron.tailc49418.ts.net.key
-      #   reverse_proxy http://127.0.0.1:8642 {
-      #     transport http {
-      #       versions 1.1
-      #     }
-      #   }
-      # '';
+      "http://ultron.tailc49418.ts.net:9119" = {
+        extraConfig = proxy;
+      };
+      "http://ultron.tailc49418.ts.net" = {
+        extraConfig = proxy;
+      };
     };
   };
 
